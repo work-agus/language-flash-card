@@ -16,11 +16,12 @@ exports.studyPage = (req, res) => {
     }
 
     res.render('study/card', {
-        card,
+        card: card,
         user: req.session.userName,
-        categories,
+        categories: categories,
         currentCategory: category,
-        canUndo: req.session.reviewHistory.length > 0
+        canUndo: req.session.reviewHistory.length > 0,
+        path: '/study'
     });
 };
 
