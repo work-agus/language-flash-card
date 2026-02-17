@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashVocab - Master English Vocabulary</title>
+    <!-- <link href="/css/styles.css" rel="stylesheet"> -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* Slide Animations */
+        @keyframes slideOutLeft {
+            to {
+                opacity: 0;
+                transform: translateX(-100%) rotate(-10deg);
+            }
+        }
+
+        @keyframes slideOutRight {
+            to {
+                opacity: 0;
+                transform: translateX(100%) rotate(10deg);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-out-left {
+            animation: slideOutLeft 0.5s forwards;
+        }
+
+        .animate-slide-out-right {
+            animation: slideOutRight 0.5s forwards;
+        }
+
+        .animate-slide-in-up {
+            animation: slideInUp 0.5s forwards;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen flex flex-col text-slate-800">
+    <!-- Navbar -->
+    <nav class="bg-white/80 backdrop-blur-md border-b border-white/20 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="/dashboard"
+                            class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center gap-2">
+                            <span class="text-2xl">⚡</span> FlashVocab
+                        </a>
+                    </div>
+                    <% if (typeof user !=='undefined' && user) { %>
+                        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                            <a href="/dashboard"
+                                class="<%= typeof path !== 'undefined' && path === '/dashboard' ? 'text-indigo-600 border-indigo-500' : 'text-slate-500 border-transparent hover:text-indigo-600 hover:border-indigo-300' %> inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                                Dashboard
+                            </a>
+                            <a href="/vocab"
+                                class="<%= typeof path !== 'undefined' && path && path.startsWith('/vocab') ? 'text-indigo-600 border-indigo-500' : 'text-slate-500 border-transparent hover:text-indigo-600 hover:border-indigo-300' %> inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                                Vocabulary
+                            </a>
+                            <a href="/study"
+                                class="<%= typeof path !== 'undefined' && path === '/study' ? 'text-indigo-600 border-indigo-500' : 'text-slate-500 border-transparent hover:text-indigo-600 hover:border-indigo-300' %> inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                                Study Mode
+                            </a>
+                        </div>
+                        <% } %>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <% if (typeof user !=='undefined' && user) { %>
+                        <div
+                            class="flex items-center gap-2 px-3 py-1 rounded-full bg-white/50 border border-indigo-100 hidden sm:flex">
+                            <div class="h-2 w-2 rounded-full bg-green-400"></div>
+                            <span class="text-sm text-slate-600 font-medium">
+                                <%= user %>
+                            </span>
+                        </div>
+                        <a href="/auth/logout"
+                            class="text-sm font-medium text-slate-500 hover:text-red-600 transition-colors">
+                            Logout
+                        </a>
+                        <% } else { %>
+                            <a href="/auth/login"
+                                class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Log
+                                in</a>
+                            <a href="/auth/register"
+                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform hover:scale-105 transition-all">
+                                Get Started
+                            </a>
+                            <% } %>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow">

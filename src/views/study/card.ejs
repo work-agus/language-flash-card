@@ -1,0 +1,457 @@
+<%- include('../partials/header') %>
+
+    <div
+        class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <!-- Category Filter -->
+        <div class="flex justify-center mb-8 z-10 relative">
+            <div class="relative inline-block w-64 group">
+                <select id="category-select" onchange="changeCategory(this.value)"
+                    class="block appearance-none w-full bg-white/50 backdrop-blur-sm border border-white/40 text-slate-700 px-4 py-3 pr-8 rounded-2xl shadow-lg leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all cursor-pointer font-medium hover:bg-white/70">
+                    <option value="">All Categories</option>
+                    <% categories.forEach(cat=> { %>
+                        <option value="<%= cat %>" <%=currentCategory===cat ? 'selected' : '' %>><%= cat %>
+                        </option>
+                        <% }) %>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-indigo-600">
+                    <svg class="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State Container (Hidden by default unless empty) -->
+        <div id="empty-state" class="<%= !card ? '' : 'hidden' %> text-center z-10">
+            <div class="mb-6 inline-flex p-4 rounded-full bg-indigo-100/50 backdrop-blur-sm shadow-inner text-4xl">
+                🎉
+            </div>
+            <h2
+                class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-pink-600 mb-2">
+                All caught up!</h2>
+            <p id="empty-message" class="mt-2 text-lg text-slate-600 max-w-md mx-auto">
+                <% if (currentCategory) { %>
+                    No more cards to review in <strong class="text-indigo-600">
+                        <%= currentCategory %>
+                    </strong> for now.
+                    <% } else { %>
+                        You've reviewed all available cards. Great job!
+                        <% } %>
+            </p>
+            <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a href="/dashboard"
+                    class="px-8 py-3 rounded-full bg-white text-indigo-600 font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all border border-indigo-50">Back
+                    to Dashboard</a>
+                <% if (currentCategory) { %>
+                    <a href="/study"
+                        class="px-8 py-3 rounded-full bg-indigo-600 text-white font-semibold shadow-lg hover:bg-indigo-700 hover:shadow-xl hover:scale-105 transition-all shadow-indigo-500/30">Study
+                        All Categories</a>
+                    <% } %>
+            </div>
+        </div>
+
+        <!-- Card Container -->
+        <% if (card) { %>
+            <div id="card-container" class="relative w-full max-w-md h-[500px] perspective-1000 z-10">
+                <div id="flashcard"
+                    class="relative w-full h-full transition-all duration-700 transform-style-3d cursor-pointer shadow-2xl rounded-3xl hover:shadow-indigo-500/20"
+                    onclick="flipCard()">
+
+                    <!-- Front Face -->
+                    <div
+                        class="absolute w-full h-full inset-0 bg-white/80 backdrop-blur-xl rounded-3xl p-8 flex flex-col items-center justify-center text-center backface-hidden border border-white/50">
+                        <!-- Status Badge -->
+                        <div class="absolute top-6 right-6">
+                            <span id="card-status-badge"
+                                class="px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm <%= card.status === 'new' ? 'bg-blue-100/80 text-blue-700' : 'bg-amber-100/80 text-amber-700' %>">
+                                <%= card.status==='new' ? 'New Word' : 'Review' %>
+                            </span>
+                        </div>
+
+                        <div class="mt-8 mb-4">
+                            <span id="card-category"
+                                class="text-xs font-bold text-indigo-500 uppercase tracking-[0.2em] bg-indigo-50 px-3 py-1 rounded-lg">
+                                <%= card.category %>
+                            </span>
+                        </div>
+
+                        <h1 id="card-word"
+                            class="text-6xl font-black text-slate-800 mb-8 bg-clip-text text-transparent bg-gradient-to-br from-slate-900 to-slate-600 leading-tight py-2">
+                            <%= card.word %>
+                        </h1>
+
+                        <p class="text-slate-400 text-sm font-medium animate-pulse mt-auto mb-4">Tap card to flip</p>
+                    </div>
+
+                    <!-- Back Face -->
+                    <div
+                        class="absolute w-full h-full inset-0 bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-3xl p-8 flex flex-col items-center justify-center text-center backface-hidden rotate-y-180 border border-white/10 shadow-inner">
+                        <h2 id="card-meaning" class="text-4xl font-bold mb-6 text-white drop-shadow-md">
+                            <%= card.meaning %>
+                        </h2>
+                        <div class="w-16 h-1 bg-white/20 rounded-full mb-6"></div>
+                        <p id="card-example" class="text-xl text-indigo-100 font-medium italic mb-2 leading-relaxed">"
+                            <%= card.example %>"
+                        </p>
+                        <div class="mt-auto pt-4 w-full">
+                            <p class="text-xs text-indigo-200 uppercase tracking-widest font-semibold mb-6">Level: <span
+                                    id="card-level">
+                                    <%= card.level %>
+                                </span></p>
+
+                            <!-- Action Buttons -->
+                            <div class="grid grid-cols-2 gap-4" onclick="event.stopPropagation()">
+                                <button onclick="submitReview(event, 'unknown')"
+                                    class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-md text-white font-semibold transition-all hover:scale-105 active:scale-95 group">
+                                    <span class="group-hover:-translate-x-1 transition-transform">❌</span> Belum
+                                </button>
+                                <button onclick="submitReview(event, 'known')"
+                                    class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-green-500 hover:bg-green-400 text-white font-bold shadow-lg shadow-green-500/30 transition-all hover:scale-105 active:scale-95 group">
+                                    <span class="group-hover:scale-125 transition-transform">✅</span> Hafal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+
+                <!-- Hidden input for current card ID -->
+                <input type="hidden" id="current-vocab-id" value="<%= card ? card.id : '' %>">
+                <input type="hidden" id="current-category" value="<%= currentCategory || '' %>">
+    </div>
+
+    <style>
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+    </style>
+
+    <!-- Undo Button (Absolute positioned) -->
+    <button id="undo-btn" onclick="undoReview()" disabled
+        class="absolute top-24 left-6 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-lg text-slate-400 border border-slate-200 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed enabled:hover:text-indigo-600 enabled:hover:bg-slate-50 enabled:cursor-pointer"
+        title="Undo last action">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+        </svg>
+        <span>Undo</span>
+    </button>
+
+    <script>
+        let isFlipped = false;
+        let isAnimating = false;
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+        const card = document.getElementById('flashcard');
+        const cardContainer = document.getElementById('card-container');
+        const undoBtn = document.getElementById('undo-btn');
+        const THRESHOLD = 100; // px to trigger swipe
+
+        // Check if we can undo based on Server State (primary) and Session Storage (secondary)
+        // We use a small EJS injection here to get the initial server state
+        const serverCanUndo = <%= canUndo %>;
+
+        if (serverCanUndo) {
+            undoBtn.disabled = false;
+            undoBtn.classList.remove('text-slate-400');
+            undoBtn.classList.add('text-slate-600');
+            sessionStorage.setItem('canUndo', 'true');
+        } else {
+            undoBtn.disabled = true;
+            undoBtn.classList.add('text-slate-400');
+            undoBtn.classList.remove('text-slate-600');
+            sessionStorage.setItem('canUndo', 'false');
+        }
+
+        // Touch Events
+        if (card) { // Ensure card exists before adding listeners
+            card.addEventListener('touchstart', handleStart, { passive: true });
+            card.addEventListener('touchmove', handleMove, { passive: false });
+            card.addEventListener('touchend', handleEnd);
+
+            // Mouse Events
+            card.addEventListener('mousedown', handleStart);
+            document.addEventListener('mousemove', handleMove);
+            document.addEventListener('mouseup', handleEnd);
+        }
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                undoReview();
+            }
+        });
+
+
+        function handleStart(e) {
+            if (isAnimating || !cardContainer) return;
+            startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+            isDragging = true;
+            card.style.transition = 'none'; // Disable transition for direct following
+        }
+
+        function handleMove(e) {
+            if (!isDragging || isAnimating) return;
+
+            // Prevent default scroll on touch
+            if (e.type === 'touchmove') {
+                // optional: e.preventDefault(); 
+            }
+
+            currentX = (e.type === 'touchmove' ? e.touches[0].clientX : e.clientX) - startX;
+
+            // Rotate and translate based on drag
+            const rotation = currentX * 0.1; // 10px = 1deg
+            const opacity = Math.max(0, 1 - Math.abs(currentX) / 300); // Fade out slightly
+
+            // Apply transform. Note: preserve existing flip if needed, but for now simple swipe
+            if (isFlipped) {
+                card.style.transform = `translateX(${currentX}px) rotateY(180deg) rotateZ(${rotation}deg)`;
+            } else {
+                card.style.transform = `translateX(${currentX}px) rotateZ(${rotation}deg)`;
+            }
+
+            // Visual cues (colors) could be added here
+            if (currentX > 50) {
+                card.style.boxShadow = `0 0 20px rgba(74, 222, 128, ${Math.min(0.5, currentX / 300)})`; // Green glow
+            } else if (currentX < -50) {
+                card.style.boxShadow = `0 0 20px rgba(248, 113, 113, ${Math.min(0.5, -currentX / 300)})`; // Red glow
+            } else {
+                card.style.boxShadow = '';
+            }
+        }
+
+        function handleEnd(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            card.style.transition = 'all 0.5s ease'; // Re-enable transition
+
+            if (currentX > THRESHOLD) {
+                // Swipe Right -> Known
+                submitReview(e, 'known');
+            } else if (currentX < -THRESHOLD) {
+                // Swipe Left -> Unknown
+                submitReview(e, 'unknown');
+            } else {
+                // Reset position
+                if (isFlipped) {
+                    card.style.transform = 'rotateY(180deg)';
+                } else {
+                    card.style.transform = 'none';
+                }
+                card.style.boxShadow = '';
+            }
+            currentX = 0;
+        }
+
+        function flipCard() {
+            if (isAnimating || isDragging || Math.abs(currentX) > 5) return; // Don't flip if dragging
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                card.classList.add('rotate-y-180');
+            } else {
+                card.classList.remove('rotate-y-180');
+            }
+        }
+
+        function changeCategory(category) {
+            window.location.href = '/study?category=' + encodeURIComponent(category);
+        }
+
+        async function submitReview(event, rating) {
+            if (event && event.stopPropagation) event.stopPropagation(); // Prevent card flip
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const vocabId = document.getElementById('current-vocab-id').value;
+            const category = document.getElementById('current-category').value;
+            const cardContainer = document.getElementById('card-container');
+
+            // Animate out
+            const animationClass = rating === 'known' ? 'animate-slide-out-right' : 'animate-slide-out-left';
+            cardContainer.classList.add(animationClass);
+
+            // Submit review via AJAX
+            try {
+                const response = await fetch('/study/review', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ vocabId, rating, category })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // Update session storage to show Undo button
+                    if (data.canUndo) {
+                        sessionStorage.setItem('canUndo', 'true');
+                        undoBtn.disabled = false;
+                        undoBtn.classList.remove('text-slate-400');
+                        undoBtn.classList.add('text-slate-600');
+                    } else {
+                        sessionStorage.setItem('canUndo', 'false');
+                        undoBtn.disabled = true;
+                        undoBtn.classList.add('text-slate-400');
+                        undoBtn.classList.remove('text-slate-600');
+                    }
+
+                    // Fetch next card
+                    const nextResponse = await fetch(`/study?category=${encodeURIComponent(category)}`, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const nextData = await nextResponse.json();
+
+                    // Wait for animation to finish
+                    setTimeout(() => {
+                        if (nextData.card) {
+                            updateCardRequest(nextData.card);
+                            resetCardState();
+                            // Animate in
+                            cardContainer.classList.remove('animate-slide-out-right', 'animate-slide-out-left');
+                            cardContainer.classList.add('animate-slide-in-up');
+                            setTimeout(() => {
+                                cardContainer.classList.remove('animate-slide-in-up');
+                                isAnimating = false;
+                            }, 500);
+                        } else {
+                            showEmptyState();
+                            isAnimating = false;
+                        }
+                    }, 500); // Match animation duration
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // Fallback to reload if error
+                window.location.reload();
+            }
+        }
+
+        async function undoReview() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const cardContainer = document.getElementById('card-container');
+
+            // Animate out (reverse slide)
+            cardContainer.classList.add('animate-slide-out-right'); // Or left, doesn't matter much for undo
+
+            try {
+                const response = await fetch('/study/undo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    setTimeout(() => {
+                        if (data.card) {
+                            updateCardRequest(data.card);
+                            resetCardState();
+
+                            // Update Undo button state based on backend response
+                            if (data.canUndo) {
+                                undoBtn.disabled = false;
+                                undoBtn.classList.remove('text-slate-400');
+                                undoBtn.classList.add('text-slate-600');
+                                sessionStorage.setItem('canUndo', 'true');
+                            } else {
+                                undoBtn.disabled = true;
+                                undoBtn.classList.add('text-slate-400');
+                                undoBtn.classList.remove('text-slate-600');
+                                sessionStorage.setItem('canUndo', 'false');
+                            }
+
+                            // Animate in from left (reverse of next card)
+                            cardContainer.classList.remove('animate-slide-out-right');
+                            // We need a slide-in-left animation
+                            cardContainer.style.animation = 'slideInLeft 0.5s forwards';
+
+                            setTimeout(() => {
+                                cardContainer.style.animation = '';
+                                isAnimating = false;
+                            }, 500);
+                        }
+                    }, 500);
+                } else {
+                    // If error (e.g., nothing to undo), disable the button and clear state
+                    console.warn('Undo failed:', await response.text());
+                    undoBtn.disabled = true;
+                    undoBtn.classList.add('text-slate-400');
+                    undoBtn.classList.remove('text-slate-600');
+                    sessionStorage.setItem('canUndo', 'false');
+
+                    isAnimating = false;
+                    cardContainer.classList.remove('animate-slide-out-right');
+
+                    // Optional: Show a small toast notification instead of alert
+                    // const toast = document.createElement('div'); ...
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                isAnimating = false;
+                cardContainer.classList.remove('animate-slide-out-right');
+            }
+        }
+
+        function updateCardRequest(card) {
+            document.getElementById('current-vocab-id').value = card.id;
+            document.getElementById('card-word').textContent = card.word;
+            document.getElementById('card-meaning').textContent = card.meaning;
+            document.getElementById('card-example').textContent = `"${card.example}"`;
+            document.getElementById('card-category').textContent = card.category;
+            document.getElementById('card-level').textContent = card.level;
+
+            const badge = document.getElementById('card-status-badge');
+            if (card.status === 'new') {
+                badge.textContent = 'New Word';
+                badge.className = 'px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm bg-blue-100/80 text-blue-700';
+            } else {
+                badge.textContent = 'Review';
+                badge.className = 'px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm bg-amber-100/80 text-amber-700';
+            }
+
+            // Unhide container if it was hidden
+            document.getElementById('card-container').classList.remove('hidden');
+            document.getElementById('empty-state').classList.add('hidden');
+        }
+
+        function resetCardState() {
+            const card = document.getElementById('flashcard');
+            isFlipped = false;
+            card.classList.remove('rotate-y-180');
+            card.style.transform = 'none';
+            card.style.boxShadow = '';
+            currentX = 0;
+            isDragging = false;
+        }
+
+        function showEmptyState() {
+            document.getElementById('card-container').classList.add('hidden');
+            document.getElementById('empty-state').classList.remove('hidden');
+        }
+    </script>
+    <style>
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100%) rotate(-10deg);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+
+    <%- include('../partials/footer') %>
