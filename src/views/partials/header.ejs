@@ -15,6 +15,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- PWA Settings -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/images/icon-192.png">
+    <meta name="theme-color" content="#4f46e5">
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -82,6 +88,46 @@
         } else {
             document.documentElement.classList.remove('dark')
         }
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-button');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            // Update UI to notify the user they can add to home screen
+            installBtn.classList.remove('hidden');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Show the prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to the install prompt: ${outcome}`);
+                // We've used the prompt, and can't use it again, throw it away
+                deferredPrompt = null;
+                // Hide the button
+                installBtn.classList.add('hidden');
+            }
+        });
     </script>
 </head>
 
@@ -118,6 +164,17 @@
                         <% } %>
                 </div>
                 <div class="flex items-center space-x-2 sm:space-x-4">
+                    <!-- Install Button (Hidden by default) -->
+                    <button id="install-button" type="button"
+                        class="hidden text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-3 py-2 text-center inline-flex items-center gap-2 transition-all transform hover:scale-105">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        <span class="hidden sm:inline">Install</span>
+                    </button>
+
                     <!-- Dark Mode Toggle -->
                     <button id="theme-toggle" type="button"
                         class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-200 dark:focus:ring-slate-700 rounded-lg text-sm p-2.5 transition-colors">
