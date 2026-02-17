@@ -1,19 +1,21 @@
 <%- include('../partials/header') %>
 
     <div
-        class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-300">
         <!-- Category Filter -->
         <div class="flex justify-center mb-8 z-10 relative">
             <div class="relative inline-block w-64 group">
                 <select id="category-select" onchange="changeCategory(this.value)"
-                    class="block appearance-none w-full bg-white/50 backdrop-blur-sm border border-white/40 text-slate-700 px-4 py-3 pr-8 rounded-2xl shadow-lg leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all cursor-pointer font-medium hover:bg-white/70">
-                    <option value="">All Categories</option>
+                    class="block appearance-none w-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-white/40 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-4 py-3 pr-8 rounded-2xl shadow-lg leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all cursor-pointer font-medium hover:bg-white/70 dark:hover:bg-slate-700/70">
+                    <option value="" class="dark:bg-slate-800">All Categories</option>
                     <% categories.forEach(cat=> { %>
-                        <option value="<%= cat %>" <%=currentCategory===cat ? 'selected' : '' %>><%= cat %>
+                        <option value="<%= cat %>" <%=currentCategory===cat ? 'selected' : '' %>
+                            class="dark:bg-slate-800"><%= cat %>
                         </option>
                         <% }) %>
                 </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-indigo-600">
+                <div
+                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-indigo-600 dark:text-indigo-400">
                     <svg class="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                         <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                     </svg>
@@ -23,15 +25,16 @@
 
         <!-- Empty State Container (Hidden by default unless empty) -->
         <div id="empty-state" class="<%= !card ? '' : 'hidden' %> text-center z-10">
-            <div class="mb-6 inline-flex p-4 rounded-full bg-indigo-100/50 backdrop-blur-sm shadow-inner text-4xl">
+            <div
+                class="mb-6 inline-flex p-4 rounded-full bg-indigo-100/50 dark:bg-indigo-900/50 backdrop-blur-sm shadow-inner text-4xl">
                 🎉
             </div>
             <h2
-                class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-pink-600 mb-2">
+                class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-pink-600 dark:from-indigo-400 dark:to-pink-400 mb-2">
                 All caught up!</h2>
-            <p id="empty-message" class="mt-2 text-lg text-slate-600 max-w-md mx-auto">
+            <p id="empty-message" class="mt-2 text-lg text-slate-600 dark:text-slate-400 max-w-md mx-auto">
                 <% if (currentCategory) { %>
-                    No more cards to review in <strong class="text-indigo-600">
+                    No more cards to review in <strong class="text-indigo-600 dark:text-indigo-400">
                         <%= currentCategory %>
                     </strong> for now.
                     <% } else { %>
@@ -40,11 +43,11 @@
             </p>
             <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <a href="/dashboard"
-                    class="px-8 py-3 rounded-full bg-white text-indigo-600 font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all border border-indigo-50">Back
+                    class="px-8 py-3 rounded-full bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all border border-indigo-50 dark:border-slate-700">Back
                     to Dashboard</a>
                 <% if (currentCategory) { %>
                     <a href="/study"
-                        class="px-8 py-3 rounded-full bg-indigo-600 text-white font-semibold shadow-lg hover:bg-indigo-700 hover:shadow-xl hover:scale-105 transition-all shadow-indigo-500/30">Study
+                        class="px-8 py-3 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all shadow-indigo-500/30">Study
                         All Categories</a>
                     <% } %>
             </div>
@@ -54,38 +57,39 @@
         <% if (card) { %>
             <div id="card-container" class="relative w-full max-w-md h-[500px] perspective-1000 z-10">
                 <div id="flashcard"
-                    class="relative w-full h-full transition-all duration-700 transform-style-3d cursor-pointer shadow-2xl rounded-3xl hover:shadow-indigo-500/20"
+                    class="relative w-full h-full transition-all duration-700 transform-style-3d cursor-pointer shadow-2xl rounded-3xl hover:shadow-indigo-500/20 dark:shadow-none dark:hover:shadow-indigo-500/10"
                     onclick="flipCard()">
 
                     <!-- Front Face -->
                     <div
-                        class="absolute w-full h-full inset-0 bg-white/80 backdrop-blur-xl rounded-3xl p-8 flex flex-col items-center justify-center text-center backface-hidden border border-white/50">
+                        class="absolute w-full h-full inset-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-8 flex flex-col items-center justify-center text-center backface-hidden border border-white/50 dark:border-slate-700">
                         <!-- Status Badge -->
                         <div class="absolute top-6 right-6">
                             <span id="card-status-badge"
-                                class="px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm <%= card.status === 'new' ? 'bg-blue-100/80 text-blue-700' : 'bg-amber-100/80 text-amber-700' %>">
+                                class="px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm <%= card.status === 'new' ? 'bg-blue-100/80 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' : 'bg-amber-100/80 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300' %>">
                                 <%= card.status==='new' ? 'New Word' : 'Review' %>
                             </span>
                         </div>
 
                         <div class="mt-8 mb-4">
                             <span id="card-category"
-                                class="text-xs font-bold text-indigo-500 uppercase tracking-[0.2em] bg-indigo-50 px-3 py-1 rounded-lg">
+                                class="text-xs font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-[0.2em] bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-lg">
                                 <%= card.category %>
                             </span>
                         </div>
 
                         <h1 id="card-word"
-                            class="text-6xl font-black text-slate-800 mb-8 bg-clip-text text-transparent bg-gradient-to-br from-slate-900 to-slate-600 leading-tight py-2">
+                            class="text-6xl font-black text-slate-800 dark:text-white mb-8 bg-clip-text text-transparent bg-gradient-to-br from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 leading-tight py-2">
                             <%= card.word %>
                         </h1>
 
-                        <p class="text-slate-400 text-sm font-medium animate-pulse mt-auto mb-4">Tap card to flip</p>
+                        <p class="text-slate-400 dark:text-slate-500 text-sm font-medium animate-pulse mt-auto mb-4">Tap
+                            card to flip</p>
                     </div>
 
                     <!-- Back Face -->
                     <div
-                        class="absolute w-full h-full inset-0 bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-3xl p-8 flex flex-col items-center justify-center text-center backface-hidden rotate-y-180 border border-white/10 shadow-inner">
+                        class="absolute w-full h-full inset-0 bg-gradient-to-br from-indigo-600 to-purple-700 dark:from-indigo-900 dark:to-purple-900 text-white rounded-3xl p-8 flex flex-col items-center justify-center text-center backface-hidden rotate-y-180 border border-white/10 shadow-inner">
                         <h2 id="card-meaning" class="text-4xl font-bold mb-6 text-white drop-shadow-md">
                             <%= card.meaning %>
                         </h2>
@@ -129,7 +133,7 @@
 
     <!-- Undo Button (Absolute positioned) -->
     <button id="undo-btn" onclick="undoReview()" disabled
-        class="absolute top-24 left-6 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-lg text-slate-400 border border-slate-200 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed enabled:hover:text-indigo-600 enabled:hover:bg-slate-50 enabled:cursor-pointer"
+        class="absolute top-24 left-6 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-slate-800 shadow-lg text-slate-400 dark:text-slate-600 border border-slate-200 dark:border-slate-700 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed enabled:hover:text-indigo-600 dark:enabled:hover:text-indigo-400 enabled:hover:bg-slate-50 dark:enabled:hover:bg-slate-700 enabled:cursor-pointer"
         title="Undo last action">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
